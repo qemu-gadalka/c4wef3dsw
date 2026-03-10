@@ -5,8 +5,8 @@ const SETTINGS = {
     host: "mc.risemine.space",
     port: 25565,
     version: "1.16.5",
-    pass: "!die((lol))(hi))!!@",
-    botCount: 45, // Оптимально для 7GB RAM Гитхаба, чтобы не вылететь самому
+    pass: "die",
+    botCount: 55, // Оптимально для 7GB RAM Гитхаба, чтобы не вылететь самому
     joinDelay: 100
 };
 
