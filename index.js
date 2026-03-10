@@ -6,7 +6,8 @@ const SETTINGS = {
     port: 25565,
     version: "1.16.5",
     pass: "johnsinna1941_1488",
-    botCount: 10 // Количество ботов на ОДИН процесс (не переборщи, браузер ест RAM)
+    botCount: 951050
+    joinDelay: 100
 };
 
 async function passCaptcha(url) {
@@ -61,7 +62,7 @@ function createBot(id) {
     });
 
     bot.on('error', () => {});
-    bot.on('end', () => setTimeout(() => createBot(id), 5000));
+    bot.on('end', () => setTimeout(() => createBot(id), 1000));
 }
 
 for (let i = 0; i < SETTINGS.botCount; i++) {
