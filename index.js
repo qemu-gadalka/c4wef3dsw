@@ -6,8 +6,8 @@ const SETTINGS = {
     port: 25565,
     version: "1.16.5",
     pass: "asdasdasd",
-    botCount: 40,
-    joinDelay: 100
+    botCount: 80,
+    joinDelay: 1
 };
 
 let sharedBrowser;
