@@ -7,7 +7,7 @@ const SETTINGS = {
     version: "1.16.5",
     pass: "asdasdasd",
     botCount: 80,
-    joinDelay: 1
+    joinDelay: 60
 };
 
 let sharedBrowser;
