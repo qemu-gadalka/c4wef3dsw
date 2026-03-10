@@ -3,12 +3,12 @@ const playwright = require('playwright-chromium');
 
 // --- 1. КОНФИГУРАЦИЯ ---
 const SETTINGS = {
-    hosts: ["mc.risemine.space", "104.167.24.81", "104.167.24.91"],
+    hosts: ["mc.risemine.space"],
     port: 25565,
     versions: ["1.16.5", "1.16.4"],
     pass: "johnsinna1941_1488",
-    botCount: 48,
-    joinDelay: 1500 
+    botCount: 46,
+    joinDelay: ["1343", "5834", "3041", "452"] 
 };
 
 const ONESHOT_NAMES = ["Niko", "Alula", "Calamus", "Silver", "Prototype", "Prophet", "Ling", "Kelvin", "George", "Rue", "Cedric", "Magpie", "Maize", "Solstice", "WorldMachine", "Sun", "Pancake", "Lightbulb", "Refuge", "Glen"];
