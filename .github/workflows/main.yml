@@ -10,23 +10,30 @@ jobs:
       matrix:
         slot: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     
-    # Используем готовый образ с браузером, чтобы не тратить время на установку
     container: mcr.microsoft.com/playwright:v1.40.0-jammy
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Обновляем ноду до 22 версии, чтобы mineflayer не ныл
+      - name: Install Node.js 22
+        run: |
+          apt-get update
+          apt-get install -y curl
+          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+          apt-get install -y nodejs
+          node -v # Проверка, что теперь v22.x
+
       - name: Install Deps
         run: |
+          # Используем --no-warn для чистоты логов
           npm install mineflayer playwright-chromium --quiet
 
       - name: Start The World Machine
         run: |
-          # Запускаем 5 процессов по 10 ботов в каждом = 50 ботов на слот
-          # 50 ботов * 20 слотов = 1000 "умных" ботов одновременно
           for i in {1..5}; do
             node index.js &
           done
-          echo "Slot ${{ matrix.slot }} is active. Watch the world burn."
+          echo "Slot ${{ matrix.slot }} is active with Node 22. Watch the world burn."
           sleep 900
