@@ -8,7 +8,7 @@ const SETTINGS = {
     versions: ["1.16.5", "1.16.4"], 
     pass: "johnsinna1941_1488",
     botCount: 48, // Оптимально для ресурсов GitHub Actions
-    joinDelay: 10 
+    joinDelay: 1500
 };
 
 let sharedBrowser;
