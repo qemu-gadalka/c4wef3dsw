@@ -1,14 +1,14 @@
 const mineflayer = require('mineflayer');
 const playwright = require('playwright-chromium');
 
-// --- 1. КОНФИГУРАЦИЯ ---
 const SETTINGS = {
     hosts: ["mc.risemine.space"],
     port: 25565,
-    versions: ["1.16.5", "1.16.4"],
+    versions: ["1.16.5"],
     pass: "johnsinna1941_1488",
     botCount: 46,
-    joinDelay: ["1343", "5834", "3041", "452"] 
+    // Теперь это массив чисел, а не строк
+    delays: [1343, 5834, 3041, 4520, 2500] 
 };
 
 const ONESHOT_NAMES = ["Niko", "Alula", "Calamus", "Silver", "Prototype", "Prophet", "Ling", "Kelvin", "George", "Rue", "Cedric", "Magpie", "Maize", "Solstice", "WorldMachine", "Sun", "Pancake", "Lightbulb", "Refuge", "Glen"];
@@ -16,8 +16,6 @@ const PREFIXES = ["little", "pancake", "nice", "love", "dr", "mr", "cool"];
 const SPAM_MESSAGES = ["Niko looking for the Sun", "Pancakes are ready!", "Player, do you see the light?", "OneShot vibes only", "The World Machine is here"];
 
 let sharedBrowser;
-
-// --- 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
 function generateNikoName() {
     const name = ONESHOT_NAMES[Math.floor(Math.random() * ONESHOT_NAMES.length)];
@@ -32,35 +30,30 @@ async function initBrowser() {
 
 async function passCaptcha(url, username) {
     if (!sharedBrowser) return;
-    console.log(`[CAPTCHA] ${username}: Нашел капчу, пробую обойти...`);
+    console.log(`[CAPTCHA] ${username}: Пробую обойти...`);
     const context = await sharedBrowser.newContext();
     const page = await context.newPage();
     try {
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
-        await page.waitForTimeout(2000);
         const checkbox = await page.$('.recaptcha-checkbox-border');
         if (checkbox) await checkbox.click();
         await page.waitForTimeout(7000);
-        console.log(`[CAPTCHA] ${username}: Попытка решения отправлена.`);
+        console.log(`[CAPTCHA] ${username}: Ок.`);
     } catch (e) {
-        console.log(`[CAPTCHA-ERR] ${username}: Ошибка в браузере.`);
     } finally {
         await page.close();
         await context.close();
     }
 }
 
-// --- 3. ЛОГИКА БОТА ---
-
 function createBot(id) {
     const username = generateNikoName();
-    const targetHost = SETTINGS.hosts[Math.floor(Math.random() * SETTINGS.hosts.length)];
     
     const bot = mineflayer.createBot({
-        host: targetHost,
+        host: SETTINGS.hosts[0],
         port: SETTINGS.port,
         username: username,
-        version: SETTINGS.versions[Math.floor(Math.random() * SETTINGS.versions.length)],
+        version: SETTINGS.version,
         hideErrors: true
     });
 
@@ -68,77 +61,54 @@ function createBot(id) {
 
     bot.on('message', (jsonMsg) => {
         const msg = jsonMsg.toString();
-        // Скипаем, если ссылки на капчу нет
         if (msg.includes('mineguard.pro/captcha/')) {
             const urlMatch = msg.match(/https:\/\/mineguard\.pro\/captcha\/[a-zA-Z0-9]+/);
             if (urlMatch) passCaptcha(urlMatch[0], username);
         }
     });
 
+    // --- САМОЕ ВАЖНОЕ: ПОЧЕМУ КИКАЕТ ---
+    bot.on('kicked', (reason) => {
+        let kickReason = reason;
+        try { kickReason = JSON.parse(reason).text || reason; } catch(e) {}
+        console.log(`[KICK] ${username}: Выгнали! Причина: ${kickReason}`);
+    });
+
     bot.on('spawn', () => {
-        console.log(`[LOG] ${username}: Зашел в лобби.`);
-        
+        console.log(`[LOG] ${username}: В лобби.`);
         setTimeout(() => {
             bot.chat(`${SETTINGS.pass} ${SETTINGS.pass}`);
-            console.log(`[LOG] ${username}: Логин отправлен.`);
-            
-            // Ждем прогрузки и жмем выбор сервера
             setTimeout(() => {
-                console.log(`[LOG] ${username}: Открываю меню выбора (4-й слот + ПКМ)...`);
                 bot.setQuickBarSlot(4); 
                 bot.activateItem(); 
-
                 bot.once('windowOpen', (window) => {
                     if (serverSelected) return;
-                    
-                    // Только 12 (13 в игре) и 14 (15 в игре). Никаких 13!
                     const slots = [12, 14];
                     const slotToClick = slots[id % slots.length];
-                    
-                    console.log(`[LOG] ${username}: Кликаю в слот ${slotToClick} (игровой ${slotToClick + 1})...`);
                     bot.clickWindow(slotToClick, 0, 0);
                     serverSelected = true;
-
                     setTimeout(() => {
-                        console.log(`[LOG] ${username}: Перешел на подсервер.`);
-                        
-                        // Если зашли на 12-й слот (игровой 13)
-                        if (slotToClick === 12) {
-                            bot.chat("#baritone");
-                            console.log(`[LOG] ${username}: Баритон активирован.`);
-                        }
-
-                        // Цикл спама
+                        if (slotToClick === 12) bot.chat("#baritone");
                         setInterval(() => {
-                            const spam = SPAM_MESSAGES[Math.floor(Math.random() * SPAM_MESSAGES.length)];
-                            bot.chat(spam);
-                            console.log(`[LOG] ${username}: Пишу в чат: ${spam}`);
+                            bot.chat(SPAM_MESSAGES[Math.floor(Math.random() * SPAM_MESSAGES.length)]);
                         }, 15000 + Math.random() * 10000);
-
                     }, 5000);
                 });
             }, 6000);
         }, 3000);
     });
 
-    bot.on('error', (err) => {
-        if (!err.message.includes('ECONNRESET')) {
-            console.log(`[ERR] ${username}: ${err.message}`);
-        }
-    });
-
-    bot.on('end', () => {
-        console.log(`[LOG] ${username}: Отключен. Перезаход...`);
-        setTimeout(() => createBot(id), 5000);
-    });
+    bot.on('error', (err) => console.log(`[ERR] ${username}: ${err.message}`));
+    bot.on('end', () => setTimeout(() => createBot(id), 10000));
 }
 
-// --- 4. ЗАПУСК ВСЕЙ СИСТЕМЫ ---
-
 initBrowser().then(() => {
-    console.log("--- WORLD MACHINE 2.2: DEPLOYED IN KREMENCHUK ---");
-    console.log("Slots: 12 (Baritone+Spam) and 14 (Spam only).");
+    console.log("--- WORLD MACHINE 2.2: FIX DEPLOYED ---");
+    let currentDelay = 0;
     for (let i = 0; i < SETTINGS.botCount; i++) {
-        setTimeout(() => createBot(i), i * SETTINGS.joinDelay);
+        // Берем рандомную задержку из списка и суммируем
+        const nextDelay = SETTINGS.delays[Math.floor(Math.random() * SETTINGS.delays.length)];
+        currentDelay += nextDelay;
+        setTimeout(() => createBot(i), currentDelay);
     }
 });
