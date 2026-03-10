@@ -1,0 +1,28 @@
+name: 1aelsedie-GitHub-Strike
+on: 
+  workflow_dispatch: # Запуск вручную через вкладку Actions
+
+jobs:
+  raid:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Это создаст 20 параллельных задач (от 1 до 20)
+        id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Mineflayer
+        run: npm install mineflayer
+
+      - name: Launch The World Machine
+        # Запускаем и даем поработать 15 минут (900 секунд)
+        run: |
+          node index.js &
+          sleep 900
