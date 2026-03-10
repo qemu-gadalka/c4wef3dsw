@@ -6,7 +6,7 @@ const SETTINGS = {
     port: 25565,
     version: "1.16.5",
     pass: "johnsinna1941_1488",
-    botCount: 951050
+    botCount: 100000000,
     joinDelay: 100
 };
 
