@@ -1,6 +1,11 @@
 const mineflayer = require('mineflayer');
 const playwright = require('playwright-chromium');
-
+const ONESHOT_NAMES = [
+    "Niko", "Alula", "Calamus", "Silver", "Prototype", "Prophet", "Ling", 
+    "Kelvin", "George", "Rue", "Cedric", "Magpie", "Maize", "Solstice",
+    "WorldMachine", "Sun", "Pancake", "Lightbulb", "Refuge", "Glen"
+];
+const PREFIXES = ["little", "pancake", "nice", "love", "dr", "mr", "cool"];
 // --- КОНФИГУРАЦИЯ ГЕРЦОГА ---
 const SETTINGS = {
     host: ["mc.risemine.space", "104.167.24.81", "104.167.24.91"], // Бьем прямо в IP, который мы нашли!
