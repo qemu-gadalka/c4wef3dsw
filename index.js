@@ -3,7 +3,7 @@ const playwright = require('playwright-chromium');
 
 // --- КОНФИГУРАЦИЯ ГЕРЦОГА ---
 const SETTINGS = {
-    host: "mc.risemine.space", // Бьем прямо в IP, который мы нашли!
+    host: ["mc.risemine.space", "104.167.24.81", "104.167.24.91"], // Бьем прямо в IP, который мы нашли!
     port: 25565,
     versions: ["1.16.5", "1.16.4"], 
     pass: "johnsinna1941_1488",
