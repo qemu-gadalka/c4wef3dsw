@@ -8,7 +8,7 @@ function createBot() {
         host: 'shinasmp.aternos.me',
         port: 11048,
         username: username,
-        version: '1.21.1',
+        version: '1.21.11',
         checkTimeoutInterval: 30000
     });
 
