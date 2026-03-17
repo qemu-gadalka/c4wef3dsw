@@ -13,7 +13,6 @@ function createBot() {
     });
 
     bot.once('spawn', () => {
-        bot.chat('/register lol999111 lol999111');
         
         setTimeout(() => {
             setInterval(() => {
