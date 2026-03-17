@@ -5,8 +5,8 @@ function createBot() {
     const username = `y_${Math.random().toString(36).substring(2, 8)}`;
     
     const bot = mineflayer.createBot({
-        host: 'ancient_village.aternos.me',
-        port: 30820,
+        host: 'sasick228.aternos.me',
+        port: false,
         username: username,
         version: false,
         checkTimeoutInterval: 30000
