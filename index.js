@@ -2,10 +2,10 @@ process.env.NODE_NO_WARNINGS = '1';
 const mineflayer = require('mineflayer');
 
 function createBot() {
-    const username = `y_${Math.random().toString(36).substring(2, 8)}`;
+    const username = `podarochek_${Math.random().toString(36).substring(2, 8)}`;
     
     const bot = mineflayer.createBot({
-        host: 'sasick228.aternos.me',
+        host: 'ne_sifon.aternos.me',
         port: false,
         username: username,
         version: false,
@@ -16,7 +16,7 @@ function createBot() {
         
         setTimeout(() => {
             setInterval(() => {
-                bot.chat(`либари незаметно принял участие в игре ${Math.random().toString(36).substring(2, 5)}`);
+                bot.chat(`подарочек на новый от либари, пхази, сисхекс !!! ${Math.random().toString(36).substring(2, 5)}`);
             }, 50); 
         }, 1000);
     });
